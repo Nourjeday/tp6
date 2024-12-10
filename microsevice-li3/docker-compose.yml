@@ -1,0 +1,53 @@
+services:
+  mongo:
+    image: mongo
+    container_name: mongo
+    networks:
+      - microservices_network
+    ports:
+      - "27017:27017"
+
+  redis:
+    image: redis
+    container_name: redis
+    networks:
+      - microservices_network
+    ports:
+      - "6379:6379"
+
+  microuser: 
+    build: ./MicroUser  
+    container_name: microuser  
+    networks:
+      - microservices_network
+    depends_on:
+      - mongo
+      - redis
+    ports:
+      - "3001:3001"
+
+  micropfe:  
+    build: ./MicroPfe  
+    container_name: micropfe  
+    networks:
+      - microservices_network
+    depends_on:
+      - mongo
+      - redis
+    ports:
+      - "3002:3002"
+
+  gateway:  
+    build: ./Gateway  
+    container_name: gateway 
+    networks:
+      - microservices_network
+    depends_on:
+      - microuser 
+      - micropfe   
+    ports:
+      - "3000:3000"
+
+networks:
+  microservices_network:
+    driver: bridge
